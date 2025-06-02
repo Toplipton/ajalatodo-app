@@ -8,7 +8,7 @@ import { useRef } from "react";
 function App() {
   const alarmRef = useRef(null);
   const THREE_HOURS = 3 * 60 * 60;
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(THREE_HOURS);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [showCongrats, setShowCongrats] = useState(false);
 
