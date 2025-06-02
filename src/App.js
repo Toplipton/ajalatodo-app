@@ -3,11 +3,14 @@ import { useState } from "react";
 import { Task } from "./components/Task";
 import { motivationalQuotes } from "./components/Motivational";
 import { useEffect } from "react";
+import { useRef } from "react";
 
 function App() {
-  const THREE_HOURS = 3 * 60 * 60; // in seconds
-  const [timeLeft, setTimeLeft] = useState(300);//Testing
+  const alarmRef = useRef(null);
+  const THREE_HOURS = 3 * 60 * 60;
+  const [timeLeft, setTimeLeft] = useState(60);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [showCongrats, setShowCongrats] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -50,6 +53,22 @@ function App() {
 
   const [todoList, setTodoList] = useState([]);
   const [newTask, setNewTask] = useState("");
+
+  useEffect(() => {
+    if (
+      isTimeUp &&
+      todoList.length > 0 &&
+      todoList.every((task) => task.completed)
+    ) {
+      setTimeout(() => {
+        setShowCongrats(true);
+        if (alarmRef.current) {
+          alarmRef.current.pause();
+          alarmRef.current.currentTime = 0;
+        }
+      }, 500);
+    }
+  }, [todoList, isTimeUp]);
 
   const handleChange = (event) => {
     setNewTask(event.target.value);
@@ -139,9 +158,9 @@ function App() {
               marginTop: "10px",
             }}
           >
-            <strong>⏰ Time's up!</strong> Please click the task you have
+            <strong>⏰ Time's up!</strong> Please click the tasks you have
             completed.
-            <audio autoPlay loop>
+            <audio ref={alarmRef} autoPlay loop>
               <source src="end of time audio.wav" type="audio/wav" />
             </audio>
           </div>
@@ -177,6 +196,13 @@ function App() {
           );
         })}
       </div>
+      {showCongrats && (
+        <div className="congrats-message">
+          🎉 Well done, {submittedName || "champ"}! See you tomorrow. Stay
+          consistent 💪
+        </div>
+      )}
+
       <footer className="app-footer">
         <p>Made with ❤️ by Dev Ajala</p>
       </footer>

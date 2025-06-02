@@ -195,3 +195,25 @@ input[type="text"]:focus {
     margin-top: 10px;
   }
 }
+.congrats-message {
+  margin-top: 30px;
+  background-color: #e6f4ea;
+  padding: 15px 20px;
+  border-radius: 10px;
+  color: #1a3c2b;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-align: center;
+  animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
