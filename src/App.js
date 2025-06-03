@@ -8,25 +8,38 @@ import { useRef } from "react";
 function App() {
   const alarmRef = useRef(null);
   const THREE_HOURS = 3 * 60 * 60;
-  const [timeLeft, setTimeLeft] = useState(THREE_HOURS);
+  const [timeLeft, setTimeLeft] = useState(THREE_HOURS); // Keep it, but it will now be updated by actual time diff
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [showCongrats, setShowCongrats] = useState(false);
 
   useEffect(() => {
+    let savedStartTime = localStorage.getItem("startTime");
+  
+    if (!savedStartTime) {
+      const now = Date.now();
+      localStorage.setItem("startTime", now);
+      savedStartTime = now;
+    } else {
+      savedStartTime = parseInt(savedStartTime, 10);
+    }
+  
     const timer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(timer);
-          setIsTimeUp(true);
-          return 0;
-        }
-        return prevTime - 1;
-      });
+      const now = Date.now();
+      const elapsedSeconds = Math.floor((now - savedStartTime) / 1000);
+      const remaining = THREE_HOURS - elapsedSeconds;
+  
+      if (remaining <= 0) {
+        clearInterval(timer);
+        setTimeLeft(0);
+        setIsTimeUp(true);
+      } else {
+        setTimeLeft(remaining);
+      }
     }, 1000);
-
-    return () => clearInterval(timer); // cleanup on unmount
+  
+    return () => clearInterval(timer);
   }, []);
-
+  
   const [userName, setUserName] = useState("");
   const [submittedName, setSubmittedName] = useState("");
   const [quote, setQuote] = useState("");
