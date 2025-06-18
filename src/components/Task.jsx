@@ -7,7 +7,7 @@ export const Task = ({
   isTimeUp,
 }) => {
   const handleCheckbox = (e) => {
-    if (!completed && e.target.checked) {
+    if (!completed && e.target.checked && isTimeUp) {
       const audio = new Audio("complete audio.wav");
       audio.play();
       completeTask(id);
@@ -16,7 +16,6 @@ export const Task = ({
 
   return (
     <div
-      key={id}
       className="task-card"
       style={{
         backgroundColor: completed ? "#4CAF50" : "#f0f0f0",
@@ -35,13 +34,7 @@ export const Task = ({
           type="checkbox"
           checked={completed}
           disabled={completed || !isTimeUp}
-          onChange={(e) => {
-            if (!completed && e.target.checked && isTimeUp) {
-              const audio = new Audio("complete audio.wav");
-              audio.play();
-              completeTask(id);
-            }
-          }}
+          onChange={handleCheckbox}
           style={{
             transform: "scale(1.2)",
             cursor: completed || !isTimeUp ? "not-allowed" : "pointer",
