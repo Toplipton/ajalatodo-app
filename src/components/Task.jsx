@@ -40,7 +40,6 @@ export const Task = ({
             cursor: completed || !isTimeUp ? "not-allowed" : "pointer",
           }}
         />
-
         <h3
           style={{
             margin: 0,

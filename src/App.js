@@ -6,29 +6,9 @@ import { motivationalQuotes } from "./components/Motivational";
 function App() {
   const alarmRef = useRef(null);
   const THREE_HOURS = 3 * 60 * 60;
-  const [timeLeft, setTimeLeft] = useState(THREE_HOURS);
-  const [isTimeUp, setIsTimeUp] = useState(false);
-  const [showCongrats, setShowCongrats] = useState(false);
 
-  const [userName, setUserName] = useState(() => localStorage.getItem("userName") || "");
-  const [submittedName, setSubmittedName] = useState(() => localStorage.getItem("userName") || "");
-  const [quote, setQuote] = useState("");
-  const [todoList, setTodoList] = useState([]);
-  const [newTask, setNewTask] = useState("");
-
- 
-
-  const handleNameSubmit = () => {
-    if (userName.trim()) {
-      setSubmittedName(userName.trim());
-      localStorage.setItem("userName", userName.trim());
-      const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
-      setQuote(randomQuote);
-      setUserName("");
-    }
-  };
-
-  const today = new Date().toLocaleDateString("en-NG", {
+  const today = new Date().toDateString(); // Used for daily-based keys
+  const displayToday = new Date().toLocaleDateString("en-NG", {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -36,37 +16,73 @@ function App() {
     timeZone: "Africa/Lagos",
   });
 
+  const [timeLeft, setTimeLeft] = useState(THREE_HOURS);
+  const [isTimeUp, setIsTimeUp] = useState(false);
+  const [showCongrats, setShowCongrats] = useState(false);
+
+  const [userName, setUserName] = useState(() => localStorage.getItem("userName") || "");
+  const [submittedName, setSubmittedName] = useState(() => localStorage.getItem("userName") || "");
+
+  const [quote, setQuote] = useState(() => {
+    const savedQuote = localStorage.getItem(`quote_${today}`);
+    return savedQuote || "";
+  });
+
+  const [todoList, setTodoList] = useState(() => {
+    const savedTasks = localStorage.getItem(`todoList_${today}`);
+    return savedTasks ? JSON.parse(savedTasks) : [];
+  });
+
+  const [newTask, setNewTask] = useState("");
+
   useEffect(() => {
-  const todayDate = new Date().toDateString(); 
-  const savedDate = localStorage.getItem("timerDate");
-  let savedStartTime = localStorage.getItem("startTime");
+    let savedStartTime = localStorage.getItem("startTime");
+    const savedDate = localStorage.getItem("timerDate");
 
-  if (savedDate !== todayDate || !savedStartTime) {
-    const now = Date.now();
-    localStorage.setItem("startTime", now);
-    localStorage.setItem("timerDate", todayDate);
-    savedStartTime = now;
-  } else {
-    savedStartTime = parseInt(savedStartTime, 10);
-  }
-
-  const timer = setInterval(() => {
-    const now = Date.now();
-    const elapsedSeconds = Math.floor((now - savedStartTime) / 1000);
-    const remaining = THREE_HOURS - elapsedSeconds;
-
-    if (remaining <= 0) {
-      clearInterval(timer);
-      setTimeLeft(0);
-      setIsTimeUp(true);
+    if (savedDate !== today || !savedStartTime) {
+      const now = Date.now();
+      localStorage.setItem("startTime", now);
+      localStorage.setItem("timerDate", today);
+      savedStartTime = now;
     } else {
-      setTimeLeft(remaining);
+      savedStartTime = parseInt(savedStartTime, 10);
     }
-  }, 1000);
 
-  return () => clearInterval(timer);
-}, []);
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const elapsedSeconds = Math.floor((now - savedStartTime) / 1000);
+      const remaining = THREE_HOURS - elapsedSeconds;
 
+      if (remaining <= 0) {
+        clearInterval(timer);
+        setTimeLeft(0);
+        setIsTimeUp(true);
+      } else {
+        setTimeLeft(remaining);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [today]);
+
+  useEffect(() => {
+    localStorage.setItem(`todoList_${today}`, JSON.stringify(todoList));
+  }, [todoList, today]);
+
+  const handleNameSubmit = () => {
+    if (userName.trim()) {
+      setSubmittedName(userName.trim());
+      localStorage.setItem("userName", userName.trim());
+
+      if (!quote) {
+        const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+        setQuote(randomQuote);
+        localStorage.setItem(`quote_${today}`, randomQuote);
+      }
+
+      setUserName("");
+    }
+  };
 
   const handleChange = (event) => setNewTask(event.target.value);
 
@@ -112,8 +128,8 @@ function App() {
 
       <h2>
         {submittedName
-          ? `${submittedName}'s To-Do List for ${today}`
-          : `To-Do List for ${today}`}
+          ? `${submittedName}'s To-Do List for ${displayToday}`
+          : `To-Do List for ${displayToday}`}
       </h2>
 
       {quote && (
@@ -161,7 +177,7 @@ function App() {
           >
             <strong>⏰ Time's up!</strong> Please click the tasks you have completed.
             <audio ref={alarmRef} autoPlay loop>
-              <source src="end of time audio.wav" type="audio/wav" />
+              <source src="reign.mp3" type="audio/mp3" />
             </audio>
           </div>
         )}
