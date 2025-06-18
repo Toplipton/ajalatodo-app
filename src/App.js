@@ -16,32 +16,7 @@ function App() {
   const [todoList, setTodoList] = useState([]);
   const [newTask, setNewTask] = useState("");
 
-  useEffect(() => {
-    let savedStartTime = localStorage.getItem("startTime");
-    if (!savedStartTime) {
-      const now = Date.now();
-      localStorage.setItem("startTime", now);
-      savedStartTime = now;
-    } else {
-      savedStartTime = parseInt(savedStartTime, 10);
-    }
-
-    const timer = setInterval(() => {
-      const now = Date.now();
-      const elapsedSeconds = Math.floor((now - savedStartTime) / 1000);
-      const remaining = THREE_HOURS - elapsedSeconds;
-
-      if (remaining <= 0) {
-        clearInterval(timer);
-        setTimeLeft(0);
-        setIsTimeUp(true);
-      } else {
-        setTimeLeft(remaining);
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
+ 
 
   const handleNameSubmit = () => {
     if (userName.trim()) {
@@ -62,7 +37,7 @@ function App() {
   });
 
   useEffect(() => {
-  const todayDate = new Date().toDateString(); // e.g., "Mon Jun 17 2025"
+  const todayDate = new Date().toDateString(); 
   const savedDate = localStorage.getItem("timerDate");
   let savedStartTime = localStorage.getItem("startTime");
 
